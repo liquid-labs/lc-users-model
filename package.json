@@ -1,0 +1,42 @@
+{
+  "name": "@liquid-labs/lc-users-model",
+  "version": "1.0.0-alpha.0",
+  "description": "A standard user model for Liquid Code + compatible projects (in go).",
+  "main": "index.js",
+  "scripts": {
+    "build": "catalyst-scripts build",
+    "pretest": "catalyst-scripts pretest",
+    "test": "catalyst-scripts test",
+    "lint": "catalyst-scripts lint",
+    "lint-fix": "catalyst-scripts lint-fix",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Liquid-Labs/lc-users-model.git"
+  },
+  "author": "Zane Rockenbaugh <zane@liquid-labs.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Liquid-Labs/lc-users-model/issues"
+  },
+  "homepage": "https://github.com/Liquid-Labs/lc-users-model#readme",
+  "catalyst": {
+    "requires": [
+      {
+        "iface": "sql",
+        "params-req": [],
+        "params-opt": [],
+        "config-const": []
+      }
+    ]
+  },
+  "dependencies": {
+    "@liquid-labs/lc-entities-model": "^1.0.0-alpha.0"
+  },
+  "devDependencies": {
+    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.22",
+    "@liquid-labs/lc-rdb-service": "^1.0.0-alpha.0",
+    "@liquid-labs/liquid-dev-cloudsql": "^1.0.0-prototype.0"
+  }
+}
