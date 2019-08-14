@@ -18,7 +18,7 @@ CREATE TABLE users (
   -- active TINYINT(1) DEFAULT 1 NOT NULL,
   CONSTRAINT users_key PRIMARY KEY ( id ),
   CONSTRAINT users_auth_id_unique UNIQUE (auth_id),
-  CONSTRAINT users_ref_entities FOREIGN KEY ( id ) REFERENCES entities ( id )
+  CONSTRAINT users_ref_subjects FOREIGN KEY ( id ) REFERENCES subjects ( id )
 );
 
 CREATE TABLE apps_users (

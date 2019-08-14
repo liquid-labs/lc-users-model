@@ -4,22 +4,28 @@ import (
   "github.com/Liquid-Labs/lc-entities-model/go/entities"
 )
 
-type User struct {
+type Subject struct {
   entities.Entity
+}
+
+type User struct {
+  Subject
   AuthID      string `json:"authId"`
   LegalID     string `json:"legalId"`
   LegalIDType string `json:"legalIdType"`
   Active      bool   `json:"active"`
 }
 
-func NewUser(name string,
+func NewUser(
+    exemplar entities.Identifiable,
+    name string,
     description string,
     authID string,
     legalID string,
     legalIDType string,
     active bool) *User {
   return &User{
-      *entities.NewEntity(name, description, ``, false),
+      *entities.NewEntity(exemplar, name, description, ``, false),
       authID,
       legalID,
       legalIDType,
