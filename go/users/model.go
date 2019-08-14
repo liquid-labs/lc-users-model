@@ -1,11 +1,11 @@
 package users
 
 import (
-  "github.com/Liquid-Labs/lc-entities-model/go/entities"
+  . "github.com/Liquid-Labs/lc-entities-model/go/entities"
 )
 
 type Subject struct {
-  entities.Entity
+  Entity
 }
 
 type User struct {
@@ -17,7 +17,7 @@ type User struct {
 }
 
 func NewUser(
-    exemplar entities.Identifiable,
+    exemplar Identifiable,
     name string,
     description string,
     authID string,
@@ -25,7 +25,7 @@ func NewUser(
     legalIDType string,
     active bool) *User {
   return &User{
-      *entities.NewEntity(exemplar, name, description, ``, false),
+      Subject{*NewEntity(exemplar, name, description, ``, false)},
       authID,
       legalID,
       legalIDType,
@@ -35,7 +35,7 @@ func NewUser(
 
 func (u *User) Clone() *User {
   return &User{
-    *u.Entity.Clone(),
+    Subject{*u.Entity.Clone()},
     u.AuthID,
     u.LegalID,
     u.LegalIDType,
