@@ -13,16 +13,21 @@ CREATE TABLE users (
   legal_id      VARCHAR(128),
   legal_id_type legal_id_type,
   active        BOOLEAN DEFAULT TRUE NOT NULL,
+  deleted_at    TIMESTAMPTZ,
 
   CONSTRAINT users_key PRIMARY KEY ( id ),
   CONSTRAINT users_auth_id_unique UNIQUE (auth_id),
   CONSTRAINT users_ref_subjects FOREIGN KEY ( id ) REFERENCES subjects ( id )
 );
 
-CREATE TABLE apps_users (
-  app_id          UUID NOT NULL,
-  user_id         UUID NOT NULL,
-  default_context UUID,
-  CONSTRAINT apps_users_key PRIMARY KEY ( app_id, user_id ),
-  CONSTRAINT apps_users_default_context_ref_entities FOREIGN KEY ( default_context ) REFERENCES entities ( id )
-);
+CREATE VIEW users_join_entity AS
+  SELECT e.*, u.auth_id, u.legal_id, u.legal_id_type, u.active
+    FROM users u JOIN entities e ON u.id=e.id;
+
+    CREATE TABLE apps_users (
+      app_id          UUID NOT NULL,
+      user_id         UUID NOT NULL,
+      default_context UUID,
+      CONSTRAINT apps_users_key PRIMARY KEY ( app_id, user_id ),
+      CONSTRAINT apps_users_default_context_ref_entities FOREIGN KEY ( default_context ) REFERENCES entities ( id )
+    );
