@@ -2,6 +2,7 @@ package users_test
 
 import (
   "reflect"
+  "strings"
   "testing"
   "time"
 
@@ -48,13 +49,16 @@ func TestUsersClone(t *testing.T) {
   oReflection := reflect.ValueOf(orig).Elem()
   cReflection := reflect.ValueOf(clone).Elem()
   for i := 0; i < oReflection.NumField(); i++ {
-    assert.NotEqualf(
-      t,
-      oReflection.Field(i).Interface(),
-      cReflection.Field(i).Interface(),
-      `Fields '%s' unexpectedly match.`,
-      oReflection.Type().Field(i),
-    )
+    name := oReflection.Type().FieldByIndex([]int{i}).Name
+    if name[:1] == strings.ToUpper(name[:1]) {
+      assert.NotEqualf(
+        t,
+        oReflection.Field(i).Interface(),
+        cReflection.Field(i).Interface(),
+        `Fields '%s' unexpectedly match.`,
+        oReflection.Type().Field(i),
+      )
+    }
   }
 }
 
@@ -91,12 +95,15 @@ func TestUsersCloneNew(t *testing.T) {
   oReflection := reflect.ValueOf(orig).Elem()
   cReflection := reflect.ValueOf(clone).Elem()
   for i := 0; i < oReflection.NumField(); i++ {
-    assert.NotEqualf(
-      t,
-      oReflection.Field(i).Interface(),
-      cReflection.Field(i).Interface(),
-      `Fields '%s' unexpectedly match.`,
-      oReflection.Type().Field(i),
-    )
+    name := oReflection.Type().FieldByIndex([]int{i}).Name
+    if name[:1] == strings.ToUpper(name[:1]) {
+      assert.NotEqualf(
+        t,
+        oReflection.Field(i).Interface(),
+        cReflection.Field(i).Interface(),
+        `Fields '%s' unexpectedly match.`,
+        oReflection.Type().Field(i),
+      )
+    }
   }
 }
