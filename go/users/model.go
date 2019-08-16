@@ -9,11 +9,12 @@ type Subject struct {
 }
 
 type User struct {
+  tableName   struct{} `sql:"select:users_join_entity"`
   Subject
   AuthID      string `json:"authId"`
   LegalID     string `json:"legalId"`
   LegalIDType string `json:"legalIdType"`
-  Active      bool   `json:"active"`
+  Active      bool   `json:"active" sql:",notnull"`
 }
 
 func NewUser(
@@ -25,7 +26,8 @@ func NewUser(
     legalIDType string,
     active bool) *User {
   return &User{
-      Subject{*NewEntity(exemplar, name, description, ``, false)},
+      struct{}{},
+      Subject{*NewEntity(exemplar, name, description, EID(``), false)},
       authID,
       legalID,
       legalIDType,
@@ -35,6 +37,7 @@ func NewUser(
 
 func (u *User) Clone() *User {
   return &User{
+    struct{}{},
     Subject{*u.Entity.Clone()},
     u.AuthID,
     u.LegalID,
