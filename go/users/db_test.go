@@ -55,15 +55,8 @@ const (
 
 type UserIntegrationSuite struct {
   suite.Suite
-  DB *pg.DB
   U *User
   AuthID string
-}
-func (s *UserIntegrationSuite) SetupSuite() {
-  s.DB = rdb.Connect()
-}
-func (s *UserIntegrationSuite) TearDownSuite() {
-  s.DB.Close()
 }
 func (s *UserIntegrationSuite) SetupTest() {
   s.AuthID = randStringBytes()
