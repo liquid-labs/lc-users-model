@@ -1,6 +1,8 @@
 package users
 
 import (
+  "time"
+
   . "github.com/Liquid-Labs/lc-entities-model/go/entities"
 )
 
@@ -15,6 +17,7 @@ type User struct {
   LegalID     string `json:"legalId"`
   LegalIDType string `json:"legalIdType"`
   Active      bool   `json:"active" sql:",notnull"`
+  deletedAt   time.Time
 }
 
 func NewUser(
@@ -32,6 +35,7 @@ func NewUser(
       legalID,
       legalIDType,
       active,
+      time.Time{},
     }
 }
 
@@ -43,6 +47,7 @@ func (u *User) Clone() *User {
     u.LegalID,
     u.LegalIDType,
     u.Active,
+    time.Time{},
   }
 }
 
