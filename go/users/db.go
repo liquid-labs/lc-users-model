@@ -6,16 +6,8 @@ import (
   . "github.com/Liquid-Labs/terror/go/terror"
   . "github.com/Liquid-Labs/lc-entities-model/go/entities"
 )
-/*
-func (u *User) hideDeletedAt() {
-  u.deletedAt = u.DeletedAt
-}
 
-func (u *User) restoreDeletedAt() {
-  u.DeletedAt = u.deletedAt
-}*/
-
-// ModelEntity provides a(n initially empty) Entity receiver and base query.
+// ModelUser provides a(n initially empty) Entity receiver and base query.
 func ModelUser(db orm.DB) (*User, *orm.Query) {
   u := &User{}
   q := db.Model(u)
@@ -49,8 +41,6 @@ func init() {
 }
 // Updates a User record in the DB. As Users are logically abstract, one would typically only call this as part of another items update sequence.
 func (u *User) Update(db orm.DB) Terror {
-  // u.hideDeletedAt()
-  // defer u.restoreDeletedAt()
   if err := (&u.Subject.Entity).Update(db); err != nil {
     return err
   } else {
