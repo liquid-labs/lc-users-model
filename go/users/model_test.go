@@ -13,16 +13,9 @@ import (
   . "github.com/Liquid-Labs/lc-users-model/go/users"
 )
 
-type TestUser struct {
-  User
-}
-func (tu *TestUser) GetResourceName() ResourceName {
-  return ResourceName(`testusers`)
-}
-
 func TestUsersClone(t *testing.T) {
   now := time.Now()
-  orig := NewUser(&TestUser{}, `john`, `cool`, `azn-1`, `555`, `SSN`, true)
+  orig := NewUser(`users`, `john`, `cool`, `azn-1`, `555`, `SSN`, true)
   orig.ID = EID(`abc`)
   orig.OwnerID = EID(`owner-A`)
   orig.CreatedAt = now
@@ -64,7 +57,7 @@ func TestUsersClone(t *testing.T) {
 
 func TestUsersCloneNew(t *testing.T) {
   now := time.Now()
-  orig := NewUser(&TestUser{}, `john`, `cool`, `azn-1`, `555`, `SSN`, true)
+  orig := NewUser(`users`, `john`, `cool`, `azn-1`, `555`, `SSN`, true)
   orig.ID = EID(`abc`)
   orig.OwnerID = EID(`owner-A`)
   orig.CreatedAt = now

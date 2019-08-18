@@ -7,17 +7,9 @@ import (
   . "github.com/Liquid-Labs/lc-entities-model/go/entities"
 )
 
-// ModelUser provides a(n initially empty) Entity receiver and base query.
-func ModelUser(db orm.DB) (*User, *orm.Query) {
-  u := &User{}
-  q := db.Model(u)
-
-  return u, q
-}
-
 // Create creates (or inserts) a new User record into the DB. As Users are logically abstract, one would typically only call this as part of another items create sequence.
-func (u *User) Create(db orm.DB) Terror {
-  if err := (&u.Subject.Entity).Create(db); err != nil {
+func (u *User) CreateRaw(db orm.DB) Terror {
+  if err := CreateEntityRaw(u, db); err != nil {
     return err
   } else {
     qs := db.Model((&u.Subject)).ExcludeColumn(EntityFields...)
@@ -40,8 +32,8 @@ func init() {
   updateExcludes = append(updateExcludes, "id")
 }
 // Updates a User record in the DB. As Users are logically abstract, one would typically only call this as part of another items update sequence.
-func (u *User) Update(db orm.DB) Terror {
-  if err := (&u.Subject.Entity).Update(db); err != nil {
+func (u *User) UpdateRaw(db orm.DB) Terror {
+  if err := (&u.Subject.Entity).UpdateRaw(db); err != nil {
     return err
   } else {
     /* So, there's really nothing on 'subjects' to update and when all columns
@@ -68,6 +60,6 @@ func (u *User) Update(db orm.DB) Terror {
 }
 
 // Archive updates a User record in the DB. As Users are logically abstract, one would typically only call this as part of another items archive sequence.
-func (u *User) Archive(db orm.DB) Terror {
-  return (&u.Entity).Archive(db)
+func (u *User) ArchiveRaw(db orm.DB) Terror {
+  return (&u.Entity).ArchiveRaw(db)
 }

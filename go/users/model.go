@@ -21,7 +21,7 @@ type User struct {
 }
 
 func NewUser(
-    exemplar Identifiable,
+    resourceName ResourceName,
     name string,
     description string,
     authID string,
@@ -29,13 +29,11 @@ func NewUser(
     legalIDType string,
     active bool) *User {
   return &User{
-      struct{}{},
-      Subject{*NewEntity(exemplar, name, description, EID(``), false)},
-      authID,
-      legalID,
-      legalIDType,
-      active,
-      time.Time{},
+      Subject: Subject{*NewEntity(resourceName, name, description, ``, false)},
+      AuthID: authID,
+      LegalID: legalID,
+      LegalIDType: legalIDType,
+      Active: active,
     }
 }
 
@@ -56,6 +54,10 @@ func (u *User) CloneNew() *User {
   newU.Entity = *u.Entity.CloneNew()
   return newU
 }
+
+func (u *User) IsConcrete() bool { return false }
+
+func (u *User) GetEntity() *Entity { return &u.Subject.Entity }
 
 func (u *User) GetAuthID() string { return u.AuthID }
 func (u *User) SetAuthID(id string) { u.AuthID = id }

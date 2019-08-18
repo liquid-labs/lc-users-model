@@ -60,7 +60,7 @@ type UserIntegrationSuite struct {
 }
 func (s *UserIntegrationSuite) SetupTest() {
   s.AuthID = randStringBytes()
-  s.U = NewUser(&TestUser{}, name, desc, s.AuthID, legalID, legalIDType, active)
+  s.U = NewUser(`users`, name, desc, s.AuthID, legalID, legalIDType, active)
 }
 func TestUserIntegrationSuite(t *testing.T) {
   if os.Getenv(`SKIP_INTEGRATION`) == `true` {
@@ -71,7 +71,7 @@ func TestUserIntegrationSuite(t *testing.T) {
 }
 
 func (s *UserIntegrationSuite) TestUserCreate() {
-  require.NoError(s.T(), s.U.Create(rdb.Connect()), `Unexpected error creating test user`)
+  require.NoError(s.T(), s.U.CreateRaw(rdb.Connect()), `Unexpected error creating test user`)
   // require.NoError(s.T(), rdb.Connect().Insert(s.U), `Unexpected error creating test entity`)
   // require.NoError(s.T(), err, `creating test entity`)
   assert.Equal(s.T(), name, s.U.GetName())
@@ -89,7 +89,7 @@ func (s *UserIntegrationSuite) TestUserCreate() {
 }
 
 func (s *UserIntegrationSuite) TestUserRetrieve() {
-  require.NoError(s.T(), s.U.Create(rdb.Connect()), `Unexpected error creating test user`)
+  require.NoError(s.T(), s.U.CreateRaw(rdb.Connect()), `Unexpected error creating test user`)
   // require.NoError(s.T(), rdb.Connect().Insert(s.U), `Unexpected error creating test entity`)
   uCopy, err := retrieveUser(s.U.GetID())
   require.NoError(s.T(), err)
@@ -97,7 +97,7 @@ func (s *UserIntegrationSuite) TestUserRetrieve() {
 }
 
 func (s *UserIntegrationSuite) TestUsersUpdate() {
-  require.NoError(s.T(), s.U.Create(rdb.Connect()), `Unexpected error creating test user`)
+  require.NoError(s.T(), s.U.CreateRaw(rdb.Connect()), `Unexpected error creating test user`)
   s.U.SetName(`foo`)
   s.U.SetDescription(`bar`)
   s.U.SetPubliclyReadable(true)
@@ -106,7 +106,7 @@ func (s *UserIntegrationSuite) TestUsersUpdate() {
   s.U.SetLegalID(`4444-44444`)
   s.U.SetLegalIDType(`EIN`)
   s.U.SetActive(false)
-  require.NoError(s.T(), s.U.Update(rdb.Connect()))
+  require.NoError(s.T(), s.U.UpdateRaw(rdb.Connect()))
   assert.Equal(s.T(), `foo`, s.U.GetName())
   assert.Equal(s.T(), `bar`, s.U.GetDescription())
   assert.Equal(s.T(), true, s.U.IsPubliclyReadable())
@@ -120,8 +120,8 @@ func (s *UserIntegrationSuite) TestUsersUpdate() {
 }
 
 func (s *UserIntegrationSuite) TestUserArchive() {
-  require.NoError(s.T(), s.U.Create(rdb.Connect()), `Unexpected error creating test user`)
-  require.NoError(s.T(), s.U.Archive(rdb.Connect()))
+  require.NoError(s.T(), s.U.CreateRaw(rdb.Connect()), `Unexpected error creating test user`)
+  require.NoError(s.T(), s.U.ArchiveRaw(rdb.Connect()))
 
   eCopy, err := retrieveUser(s.U.GetID())
   require.NoError(s.T(), err)
