@@ -1,7 +1,6 @@
 package users_test
 
 import (
-  "math/rand"
   "os"
   "testing"
   "time"
@@ -12,6 +11,7 @@ import (
   "github.com/stretchr/testify/suite"
 
   "github.com/Liquid-Labs/lc-rdb-service/go/rdb"
+  "github.com/Liquid-Labs/strkit/go/strkit"
   "github.com/Liquid-Labs/terror/go/terror"
   . "github.com/Liquid-Labs/lc-entities-model/go/entities"
   . "github.com/Liquid-Labs/lc-users-model/go/users"
@@ -19,7 +19,6 @@ import (
 
 func init() {
   terror.EchoErrorLog()
-  rand.Seed(time.Now().UnixNano())
 }
 
 func retrieveUser(id EID) (*User, terror.Terror) {
@@ -32,17 +31,6 @@ func retrieveUser(id EID) (*User, terror.Terror) {
   } else {
     return u, nil
   }
-}
-
-const runes = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_./"
-const aznLength = 16
-
-func randStringBytes() string {
-    b := make([]byte, aznLength)
-    for i := range b {
-        b[i] = runes[rand.Int63() % int64(len(runes))]
-    }
-    return string(b)
 }
 
 const (
@@ -59,7 +47,7 @@ type UserIntegrationSuite struct {
   AuthID string
 }
 func (s *UserIntegrationSuite) SetupTest() {
-  s.AuthID = randStringBytes()
+  s.AuthID = strkit.RandString(strkit.LettersAndNumbers, 16)
   s.U = NewUser(`users`, name, desc, s.AuthID, legalID, legalIDType, active)
 }
 func TestUserIntegrationSuite(t *testing.T) {
@@ -101,7 +89,7 @@ func (s *UserIntegrationSuite) TestUsersUpdate() {
   s.U.SetName(`foo`)
   s.U.SetDescription(`bar`)
   s.U.SetPubliclyReadable(true)
-  newAuthID := randStringBytes()
+  newAuthID := strkit.RandString(strkit.LettersAndNumbers, 16)
   s.U.SetAuthID(newAuthID)
   s.U.SetLegalID(`4444-44444`)
   s.U.SetLegalIDType(`EIN`)
