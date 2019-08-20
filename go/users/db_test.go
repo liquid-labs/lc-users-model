@@ -5,7 +5,6 @@ import (
   "testing"
   "time"
 
-  "github.com/go-pg/pg"
   "github.com/stretchr/testify/assert"
   "github.com/stretchr/testify/require"
   "github.com/stretchr/testify/suite"
@@ -21,16 +20,11 @@ func init() {
   terror.EchoErrorLog()
 }
 
-func retrieveUser(id EID) (*User, terror.Terror) {
+func (s *UserIntegrationSuite) retrieveUser(id EID) (*User, error) {
   u := &User{Subject:Subject{Entity:Entity{ID: id}}}
   q := rdb.Connect().Model(u).Where(`"user".id=?id`)
-  if err := q.Select(); err != nil && err != pg.ErrNoRows {
-    return nil, terror.ServerError(`Problem retrieving entity.`, err)
-  } else if err == pg.ErrNoRows {
-    return nil, nil
-  } else {
-    return u, nil
-  }
+  count, err := RunRetrieveOp(q, RetrieveOp)
+  if count == 0 { return nil, err } else { return u, err }
 }
 
 const (
@@ -43,8 +37,13 @@ const (
 
 type UserIntegrationSuite struct {
   suite.Suite
+  IM *ItemManager
   U *User
   AuthID string
+}
+func (s *UserIntegrationSuite) SetupSuite() {
+  s.IM = NewItemManager(rdb.Connect())
+  s.IM.AllowUnsafeStateChange(true)
 }
 func (s *UserIntegrationSuite) SetupTest() {
   s.AuthID = strkit.RandString(strkit.LettersAndNumbers, 16)
@@ -59,7 +58,7 @@ func TestUserIntegrationSuite(t *testing.T) {
 }
 
 func (s *UserIntegrationSuite) TestUserCreate() {
-  require.NoError(s.T(), s.U.CreateRaw(rdb.Connect()), `Unexpected error creating test user`)
+  require.NoError(s.T(), s.IM.CreateRaw(s.U), `Unexpected error creating test user`)
   // require.NoError(s.T(), rdb.Connect().Insert(s.U), `Unexpected error creating test entity`)
   // require.NoError(s.T(), err, `creating test entity`)
   assert.Equal(s.T(), name, s.U.GetName())
@@ -77,15 +76,15 @@ func (s *UserIntegrationSuite) TestUserCreate() {
 }
 
 func (s *UserIntegrationSuite) TestUserRetrieve() {
-  require.NoError(s.T(), s.U.CreateRaw(rdb.Connect()), `Unexpected error creating test user`)
+  require.NoError(s.T(), s.IM.CreateRaw(s.U), `Unexpected error creating test user`)
   // require.NoError(s.T(), rdb.Connect().Insert(s.U), `Unexpected error creating test entity`)
-  uCopy, err := retrieveUser(s.U.GetID())
+  uCopy, err := s.retrieveUser(s.U.GetID())
   require.NoError(s.T(), err)
   assert.Equal(s.T(), s.U, uCopy)
 }
 
 func (s *UserIntegrationSuite) TestUsersUpdate() {
-  require.NoError(s.T(), s.U.CreateRaw(rdb.Connect()), `Unexpected error creating test user`)
+  require.NoError(s.T(), s.IM.CreateRaw(s.U), `Unexpected error creating test user`)
   s.U.SetName(`foo`)
   s.U.SetDescription(`bar`)
   s.U.SetPubliclyReadable(true)
@@ -94,7 +93,7 @@ func (s *UserIntegrationSuite) TestUsersUpdate() {
   s.U.SetLegalID(`4444-44444`)
   s.U.SetLegalIDType(`EIN`)
   s.U.SetActive(false)
-  require.NoError(s.T(), s.U.UpdateRaw(rdb.Connect()))
+  require.NoError(s.T(), s.IM.UpdateRaw(s.U))
   assert.Equal(s.T(), `foo`, s.U.GetName())
   assert.Equal(s.T(), `bar`, s.U.GetDescription())
   assert.Equal(s.T(), true, s.U.IsPubliclyReadable())
@@ -102,16 +101,16 @@ func (s *UserIntegrationSuite) TestUsersUpdate() {
   assert.Equal(s.T(), `4444-44444`, s.U.GetLegalID())
   assert.Equal(s.T(), `EIN`, s.U.GetLegalIDType())
   assert.Equal(s.T(), false, s.U.IsActive())
-  uCopy, err := retrieveUser(s.U.GetID())
+  uCopy, err := s.retrieveUser(s.U.GetID())
   require.NoError(s.T(), err)
   assert.Equal(s.T(), s.U, uCopy)
 }
 
 func (s *UserIntegrationSuite) TestUserArchive() {
-  require.NoError(s.T(), s.U.CreateRaw(rdb.Connect()), `Unexpected error creating test user`)
-  require.NoError(s.T(), s.U.ArchiveRaw(rdb.Connect()))
+  require.NoError(s.T(), s.IM.CreateRaw(s.U), `Unexpected error creating test user`)
+  require.NoError(s.T(), s.IM.ArchiveRaw(s.U))
 
-  eCopy, err := retrieveUser(s.U.GetID())
+  eCopy, err := s.retrieveUser(s.U.GetID())
   require.NoError(s.T(), err)
   assert.Nil(s.T(), eCopy)
 
