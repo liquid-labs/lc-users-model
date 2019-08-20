@@ -14,48 +14,53 @@ var UserFields = append(EntityFields,
   `active`,
 )
 
-// Create creates (or inserts) a new User record into the DB. As Users are logically abstract, one would typically only call this as part of another items create sequence.
-func (u *User) CreateRaw(db orm.DB) Terror {
-  if err := CreateEntityRaw(u, db); err != nil {
-    return err
-  } else {
-    qs := db.Model((&u.Subject)).ExcludeColumn(EntityFields...)
-    if _, err := qs.Insert(); err != nil {
-      return ServerError(`There was a problem creating the subject record.`, err)
-    } else {
-      qu := db.Model(u).ExcludeColumn(EntityFields...)
-      if _, err := qu.Insert(); err != nil {
-        return ServerError(`There was a problem creating the user record.`, err)
-      } else {
-        return nil
-      }
-    }
-  }
-}
-
 var updateExcludes = make([]string, len(EntityFields))
 func init() {
   copy(updateExcludes, EntityFields)
   updateExcludes = append(updateExcludes, "id")
 }
 
-func (u *User) UpdateRawQueries(db orm.DB) []*orm.Query {
-  qs := (&u.Entity).UpdateRawQueries(db)
-  // No need for a Subjects query, there's nothing there. And there's a trivial bug (?) in go-pg (v8.0.5) where if you exclude all the fields (as we would) then it's the same as excluding none of the fields.
+func (u *User) CreateQueries(db orm.DB) []*orm.Query {
+  return append(
+    (&u.Entity).CreateQueries(db),
+    db.Model((&u.Subject)).ExcludeColumn(EntityFields...),
+    db.Model(u).ExcludeColumn(EntityFields...))
+}
+
+// Create creates (or inserts) a new User record into the DB. As Users are logically abstract, one would typically only call this as part of another items create sequence.
+func (u *User) CreateRaw(db orm.DB) Terror {
+  return RunStateQueries(u.CreateQueries(db), CreateOp)
+}
+
+func (u *User) UpdateQueries(db orm.DB) []*orm.Query {
+  qes := (&u.Entity).UpdateQueries(db)
   qu := db.Model(u).
     ExcludeColumn(updateExcludes...).
     Where(`"user".id=?id`)
   qu.GetModel().Table().SoftDeleteField = nil
 
-  return append(qs, qu)
+  return append(qes, qu)
 }
 
 // Updates a User record in the DB. As Users are logically abstract, one would typically only call this as part of another items update sequence.
 func (u *User) UpdateRaw(db orm.DB) Terror {
-  return DoRawUpdate(u.UpdateRawQueries(db), db)
+  return RunStateQueries(u.UpdateQueries(db), UpdateOp)
+}
+
+func (u *User) ArchiveQueries(db orm.DB) []*orm.Query {
+  return (&u.Entity).ArchiveQueries(db)
 }
 
 // Archive updates a User record in the DB. As Users are logically abstract, one would typically only call this as part of another items archive sequence.
 func (u *User) ArchiveRaw(db orm.DB) Terror {
-  return (&u.Entity).ArchiveRaw(db)
+  return RunStateQueries(u.ArchiveQueries(db), ArchiveOp)
+}
+
+func (u *User) DeleteQueries(db orm.DB) []*orm.Query {
+  qs := []*orm.Query{db.Model(u).Where(`"user".id=?id`)}
+  return append(qs, (&u.Entity).DeleteQueries(db)...)
+}
+
+func (u *User) DeleteeRaw(db orm.DB) Terror {
+  return RunStateQueries(u.DeleteQueries(db), DeleteOp)
 }
