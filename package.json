@@ -1,6 +1,6 @@
 {
   "name": "@liquid-labs/lc-users-model",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "A standard user model for Liquid Code + compatible projects (in go).",
   "main": "index.js",
   "scripts": {
