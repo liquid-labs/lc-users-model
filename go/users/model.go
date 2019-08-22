@@ -1,6 +1,8 @@
 package users
 
 import (
+  "time"
+
   . "github.com/Liquid-Labs/lc-entities-model/go/entities"
 )
 
@@ -9,15 +11,17 @@ type Subject struct {
 }
 
 type User struct {
+  tableName   struct{} `sql:"select:users_join_entity"`
   Subject
   AuthID      string `json:"authId"`
   LegalID     string `json:"legalId"`
   LegalIDType string `json:"legalIdType"`
-  Active      bool   `json:"active"`
+  Active      bool   `json:"active" sql:",notnull"`
+  deletedAt   time.Time
 }
 
 func NewUser(
-    exemplar Identifiable,
+    resourceName ResourceName,
     name string,
     description string,
     authID string,
@@ -25,21 +29,23 @@ func NewUser(
     legalIDType string,
     active bool) *User {
   return &User{
-      Subject{*NewEntity(exemplar, name, description, ``, false)},
-      authID,
-      legalID,
-      legalIDType,
-      active,
+      Subject: Subject{*NewEntity(resourceName, name, description, ``, false)},
+      AuthID: authID,
+      LegalID: legalID,
+      LegalIDType: legalIDType,
+      Active: active,
     }
 }
 
 func (u *User) Clone() *User {
   return &User{
+    struct{}{},
     Subject{*u.Entity.Clone()},
     u.AuthID,
     u.LegalID,
     u.LegalIDType,
     u.Active,
+    time.Time{},
   }
 }
 
@@ -48,6 +54,10 @@ func (u *User) CloneNew() *User {
   newU.Entity = *u.Entity.CloneNew()
   return newU
 }
+
+func (u *User) IsConcrete() bool { return false }
+
+func (u *User) GetEntity() *Entity { return &u.Subject.Entity }
 
 func (u *User) GetAuthID() string { return u.AuthID }
 func (u *User) SetAuthID(id string) { u.AuthID = id }

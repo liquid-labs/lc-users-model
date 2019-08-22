@@ -2,6 +2,7 @@ package users_test
 
 import (
   "reflect"
+  "strings"
   "testing"
   "time"
 
@@ -12,16 +13,9 @@ import (
   . "github.com/Liquid-Labs/lc-users-model/go/users"
 )
 
-type TestUser struct {
-  User
-}
-func (tu *TestUser) GetResourceName() ResourceName {
-  return ResourceName(`testusers`)
-}
-
 func TestUsersClone(t *testing.T) {
   now := time.Now()
-  orig := NewUser(&TestUser{}, `john`, `cool`, `azn-1`, `555`, `SSN`, true)
+  orig := NewUser(`users`, `john`, `cool`, `azn-1`, `555`, `SSN`, true)
   orig.ID = EID(`abc`)
   orig.OwnerID = EID(`owner-A`)
   orig.CreatedAt = now
@@ -48,19 +42,22 @@ func TestUsersClone(t *testing.T) {
   oReflection := reflect.ValueOf(orig).Elem()
   cReflection := reflect.ValueOf(clone).Elem()
   for i := 0; i < oReflection.NumField(); i++ {
-    assert.NotEqualf(
-      t,
-      oReflection.Field(i).Interface(),
-      cReflection.Field(i).Interface(),
-      `Fields '%s' unexpectedly match.`,
-      oReflection.Type().Field(i),
-    )
+    name := oReflection.Type().FieldByIndex([]int{i}).Name
+    if name[:1] == strings.ToUpper(name[:1]) {
+      assert.NotEqualf(
+        t,
+        oReflection.Field(i).Interface(),
+        cReflection.Field(i).Interface(),
+        `Fields '%s' unexpectedly match.`,
+        oReflection.Type().Field(i),
+      )
+    }
   }
 }
 
 func TestUsersCloneNew(t *testing.T) {
   now := time.Now()
-  orig := NewUser(&TestUser{}, `john`, `cool`, `azn-1`, `555`, `SSN`, true)
+  orig := NewUser(`users`, `john`, `cool`, `azn-1`, `555`, `SSN`, true)
   orig.ID = EID(`abc`)
   orig.OwnerID = EID(`owner-A`)
   orig.CreatedAt = now
@@ -91,12 +88,15 @@ func TestUsersCloneNew(t *testing.T) {
   oReflection := reflect.ValueOf(orig).Elem()
   cReflection := reflect.ValueOf(clone).Elem()
   for i := 0; i < oReflection.NumField(); i++ {
-    assert.NotEqualf(
-      t,
-      oReflection.Field(i).Interface(),
-      cReflection.Field(i).Interface(),
-      `Fields '%s' unexpectedly match.`,
-      oReflection.Type().Field(i),
-    )
+    name := oReflection.Type().FieldByIndex([]int{i}).Name
+    if name[:1] == strings.ToUpper(name[:1]) {
+      assert.NotEqualf(
+        t,
+        oReflection.Field(i).Interface(),
+        cReflection.Field(i).Interface(),
+        `Fields '%s' unexpectedly match.`,
+        oReflection.Type().Field(i),
+      )
+    }
   }
 }
