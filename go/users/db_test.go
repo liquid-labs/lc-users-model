@@ -42,7 +42,7 @@ type UserIntegrationSuite struct {
   AuthID string
 }
 func (s *UserIntegrationSuite) SetupSuite() {
-  s.IM = NewItemManager(rdb.Connect())
+  s.IM = ConnectItemManager()
   s.IM.AllowUnsafeStateChange = true
 }
 func (s *UserIntegrationSuite) SetupTest() {
