@@ -1,3 +1,5 @@
+This repository is being archived as it is effectively replaced by [moduleforge/users-module](https://github.com/moduleforge/users-module).
+
 # Liquid Code : Users Model
 
 A standard user model for Liquid Code + compatible projects (in go).
